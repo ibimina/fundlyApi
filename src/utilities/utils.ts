@@ -1,5 +1,5 @@
 import { customAlphabet } from 'nanoid';
-import bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 
 export function getUniqueAllNumberId(size: number): string {
   const uniqueId = customAlphabet('0123456789', size);
@@ -10,7 +10,7 @@ export function getUniqueAllNumberId(size: number): string {
 export function hashWord(word: string): string | undefined {
   if (word) {
     const salt = bcrypt.genSaltSync(10);
-    return bcrypt.hashSync(word, salt);
+    return bcrypt?.hashSync(word, salt);
   }
   return undefined;
 }

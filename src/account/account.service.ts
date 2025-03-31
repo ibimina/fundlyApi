@@ -42,7 +42,7 @@ export class AccountService {
       last_name: createAccountDto.lastName,
       phone: createAccountDto.phoneNumber,
     })) as WalletInterface;
-    if (walletRes.status) {
+    if (walletRes?.status) {
       const hashedPassword = hashWord(createAccountDto.password);
       const alphaNumeric = getUniqueAllNumberId(10);
       const uniqueId = `ACC-${alphaNumeric}`;
@@ -62,7 +62,7 @@ export class AccountService {
         firstName: account.firstName,
         lastName: account.lastName,
         email: account.email,
-        id: account.uniqueId,
+        id: account._id,
       };
     } else {
       throw new Error(walletRes.message);
@@ -88,7 +88,7 @@ export class AccountService {
       firstName: account.firstName,
       lastName: account.lastName,
       email: account.email,
-      id: account.uniqueId,
+      id: account._id,
     };
   }
 
@@ -107,7 +107,7 @@ export class AccountService {
       firstName: account.firstName,
       lastName: account.lastName,
       email: account.email,
-      id: account.uniqueId,
+      id: account._id,
     };
   }
 
@@ -136,7 +136,83 @@ export class AccountService {
       firstName: account.firstName,
       lastName: account.lastName,
       email: account.email,
-      id: account.uniqueId,
+      id: account._id,
     };
+  }
+
+  async fundWallet(fundWalletDto: { accountId: string; amount: number }) {
+    const { accountId, amount } = fundWalletDto;
+    const account = await this.accountModel.findById(accountId);
+    if (!account) {
+      throw new BadRequestException('Account not found');
+    }
+    const walletRes = await this.paystackService.fundWallet({
+      email: account.email,
+      amount,
+    });
+    console.log('walletRes', walletRes);
+    if (walletRes.status) {
+      // {
+      //   status: true,
+      //   message: 'Authorization URL created',
+      //   data: {
+      //     authorization_url: 'https://checkout.paystack.com/unfngrcx1qp9efe',
+      //     access_code: 'unfngrcx1qp9efe',
+      //     reference: 'nmqmdjzuj9'
+      //   }
+      // }
+      // account.transactions = walletRes.data.transactions;
+      // account.subscriptions = walletRes.data.subscriptions;
+      // account.authorizations = walletRes.data.authorizations;
+      // account.metadata = walletRes.data.metadata;
+      // account.domain = walletRes.data.domain;
+      // account.customerCode = walletRes.data.customer_code;
+      // account.riskAction = walletRes.data.risk_action;
+      // await account.save();
+      return {
+        firstName: account.firstName,
+        lastName: account.lastName,
+        email: account.email,
+        id: account._id,
+      };
+    } else {
+      throw new Error(walletRes.message);
+    }
+  }
+
+  async transferFunds(transferFundsDto: {
+    accountId: string;
+    recipientCode: string;
+    amount: number;
+    reason: string;
+  }) {
+    const { accountId, recipientCode, amount, reason } = transferFundsDto;
+    const account = await this.accountModel.findById(accountId);
+    if (!account) {
+      throw new BadRequestException('Account not found');
+    }
+    const walletRes = await this.paystackService.transferFunds({
+      recipient_code: recipientCode,
+      amount,
+      reason,
+    });
+    if (walletRes.status) {
+      account.transactions = walletRes.data.transactions;
+      account.subscriptions = walletRes.data.subscriptions;
+      account.authorizations = walletRes.data.authorizations;
+      account.metadata = walletRes.data.metadata;
+      account.domain = walletRes.data.domain;
+      account.customerCode = walletRes.data.customer_code;
+      account.riskAction = walletRes.data.risk_action;
+      await account.save();
+      return {
+        firstName: account.firstName,
+        lastName: account.lastName,
+        email: account.email,
+        id: account._id,
+      };
+    } else {
+      throw new Error(walletRes.message);
+    }
   }
 }

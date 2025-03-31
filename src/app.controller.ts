@@ -66,4 +66,33 @@ export class AppController {
       status: HttpStatus.CREATED,
     };
   }
+
+  //paystack fund wallet
+  @ApiOperation({ summary: 'Fund wallet' })
+  @Post('fund-wallet')
+  async fundWallet(
+    @Body() fundWalletDto: { accountId: string; amount: number },
+  ) {
+    const account = await this.accountService.fundWallet(fundWalletDto);
+    return {
+      message: 'Wallet funded successfully',
+      payload: account,
+      status: HttpStatus.OK,
+    };
+  }
+
+  //transfer to fund to another account
+  @ApiOperation({ summary: 'Transfer funds' })
+  @Post('transfer-funds')
+  async transferFunds(
+    @Body()
+    transferFundsDto: { accountId: string; recipientCode: string; amount: number, reason: string },
+  ) {
+    const account = await this.accountService.transferFunds(transferFundsDto);
+    return {
+      message: 'Funds transferred successfully',
+      payload: account,
+      status: HttpStatus.OK,
+    };
+  }
 }

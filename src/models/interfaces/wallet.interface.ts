@@ -5,9 +5,9 @@ export interface WalletInterface {
     transactions: string[];
     subscriptions: string[];
     authorizations: string[];
-    metadata: object;
     domain: string;
     customer_code: string;
     risk_action: string;
+    metadata:{id: string};
   };
 }
