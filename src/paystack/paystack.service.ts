@@ -70,6 +70,9 @@ export class PaystackService {
         },
       );
       console.log('======= response', response);
+      if (response.status !== 200) {
+        return { message: response.statusText, status: response.status };
+      }
       return await response.json();
     } catch (error) {
       if (error instanceof Error) {
@@ -98,7 +101,7 @@ export class PaystackService {
           headers: {
             Authorization: `Bearer ${this.configService.get<string>('PAYSTACK_SECRET_KEY')}`,
           },
-          body: JSON.stringify({...arg0 }),
+          body: JSON.stringify({ ...arg0 }),
         },
       );
       return await response.json();
