@@ -71,7 +71,7 @@ export class PaystackService {
       );
       console.log('======= response', response);
       if (response.status !== 200) {
-        return { message: response.statusText, status: response.status };
+        return response;
       }
       return await response.json();
     } catch (error) {
