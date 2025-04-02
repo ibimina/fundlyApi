@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Document } from 'mongoose';
+import { JwtService } from '@nestjs/jwt';
+
 import { CreateAccountDto } from 'src/models/dtos/create-account.dto';
 import { WalletInterface } from 'src/models/interfaces/wallet.interface';
 import { Account } from 'src/models/schema/account.schema';
@@ -17,6 +19,7 @@ export class AccountService {
     @InjectModel('Account')
     private readonly accountModel: Model<Account & Document>,
     private readonly paystackService: PaystackService,
+    private readonly jwtService: JwtService,
   ) {}
   async createAccount(createAccountDto: CreateAccountDto) {
     //create a paystack wallet for the user
@@ -84,11 +87,16 @@ export class AccountService {
     if (!isPasswordMatch) {
       throw new BadRequestException('Invalid email or password');
     }
+    //add accestoken
+    const accessToken = await this.jwtService.signAsync({
+      id: account._id,
+    });
     return {
       firstName: account.firstName,
       lastName: account.lastName,
       email: account.email,
       id: account._id,
+      accessToken,
     };
   }
 
@@ -214,5 +222,13 @@ export class AccountService {
     } else {
       throw new Error(walletRes.message);
     }
+  }
+  async getAccountDetails(accountId: string) {
+    const account = await this.accountModel.findById(accountId);
+    if (!account) {
+      throw new BadRequestException('Account not found');
+    }
+    account.password = undefined;
+    return account;
   }
 }

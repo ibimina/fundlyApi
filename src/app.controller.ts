@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiOperation } from '@nestjs/swagger';
 import { CreateAccountDto } from './models/dtos/create-account.dto';
@@ -86,7 +86,12 @@ export class AppController {
   @Post('transfer-funds')
   async transferFunds(
     @Body()
-    transferFundsDto: { accountId: string; recipientCode: string; amount: number, reason: string },
+    transferFundsDto: {
+      accountId: string;
+      recipientCode: string;
+      amount: number;
+      reason: string;
+    },
   ) {
     const account = await this.accountService.transferFunds(transferFundsDto);
     return {
@@ -94,5 +99,21 @@ export class AppController {
       payload: account,
       status: HttpStatus.OK,
     };
+  }
+
+  //get account details
+  @ApiOperation({ summary: 'Get account details' })
+  @Get('account-details/:accountId')
+  async getAccountDetails(@Param('accountId') accountId: string) {
+    try {
+      const account = await this.accountService.getAccountDetails(accountId);
+      return {
+        message: 'Account details fetched successfully',
+        payload: account,
+        status: HttpStatus.OK,
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 }
