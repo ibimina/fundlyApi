@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { ObjectId, Schema } from 'mongoose';
 
 export const AccountSchema = new Schema({
   firstName: { type: String, required: true },
@@ -50,4 +50,5 @@ export interface Account extends Document {
   identifications: string[];
   createAt: Date;
   updateAt: Date;
+  _id: ObjectId;
 }
